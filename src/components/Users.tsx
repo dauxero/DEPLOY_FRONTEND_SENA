@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import {
   getUsers,
   addUser,
   updateUser,
   deleteUser,
 } from "../services/userService";
-import { toast } from "react-toastify";
 
 interface User {
   _id: string;
@@ -15,7 +16,6 @@ interface User {
 
 const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
   const [newUser, setNewUser] = useState({
     email: "",
     password: "",
@@ -28,23 +28,12 @@ const Users: React.FC = () => {
   }, []);
 
   const fetchUsers = async () => {
-    setLoading(true);
     try {
       const fetchedUsers = await getUsers();
       setUsers(fetchedUsers);
     } catch (error) {
-      toast.error("Failed to fetch users", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      toast.error("Failed to fetch users");
     }
-    setLoading(false);
   };
 
   const handleAddUser = async (e: React.FormEvent) => {
@@ -53,27 +42,9 @@ const Users: React.FC = () => {
       await addUser(newUser);
       setNewUser({ email: "", password: "", role: "Normal User" });
       fetchUsers();
-      toast.success("User added successfully", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      toast.success("User added successfully");
     } catch (error) {
-      toast.error("Failed to add user", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      toast.error("Failed to add user");
     }
   };
 
@@ -87,27 +58,9 @@ const Users: React.FC = () => {
       });
       setEditingUser(null);
       fetchUsers();
-      toast.success("User updated successfully", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      toast.success("User updated successfully");
     } catch (error) {
-      toast.error("Failed to update user", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      toast.error("Failed to update user");
     }
   };
 
@@ -115,140 +68,149 @@ const Users: React.FC = () => {
     try {
       await deleteUser(id);
       fetchUsers();
-      toast.success("User deleted successfully", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      toast.success("User deleted successfully");
     } catch (error) {
-      toast.error("Failed to delete user", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      toast.error("Failed to delete user");
     }
   };
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Manage Users</h2>
+    <div className="container mx-auto p-4">
+      <Link
+        to="/dashboard"
+        className="mb-4 inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
+      >
+        &larr; Back to Dashboard
+      </Link>
+      <h1 className="text-2xl font-bold mb-4">Users</h1>
+
       <form onSubmit={handleAddUser} className="mb-8">
-        <input
-          type="email"
-          placeholder="Email"
-          value={newUser.email}
-          onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-          className="mr-2 p-2 border rounded"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={newUser.password}
-          onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-          className="mr-2 p-2 border rounded"
-        />
-        <select
-          value={newUser.role}
-          onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-          className="mr-2 p-2 border rounded"
-        >
-          <option value="Normal User">Normal User</option>
-          <option value="Administrator">Administrator</option>
-        </select>
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-          Add User
-        </button>
+        <h2 className="text-xl font-semibold mb-2">Add New User</h2>
+        <div className="flex gap-2">
+          <input
+            type="email"
+            placeholder="Email"
+            value={newUser.email}
+            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+            className="border p-2 rounded"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={newUser.password}
+            onChange={(e) =>
+              setNewUser({ ...newUser, password: e.target.value })
+            }
+            className="border p-2 rounded"
+            required
+          />
+          <select
+            value={newUser.role}
+            onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+            className="border p-2 rounded"
+          >
+            <option value="Normal User">Normal User</option>
+            <option value="Administrator">Administrator</option>
+          </select>
+          <button
+            type="submit"
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Add User
+          </button>
+        </div>
       </form>
-      <table className="w-full">
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user._id}>
-              <td>
-                {editingUser && editingUser._id === user._id ? (
-                  <input
-                    value={editingUser.email}
-                    onChange={(e) =>
-                      setEditingUser({ ...editingUser, email: e.target.value })
-                    }
-                    className="p-1 border rounded"
-                  />
-                ) : (
-                  user.email
-                )}
-              </td>
-              <td>
-                {editingUser && editingUser._id === user._id ? (
-                  <select
-                    value={editingUser.role}
-                    onChange={(e) =>
-                      setEditingUser({ ...editingUser, role: e.target.value })
-                    }
-                    className="p-1 border rounded"
-                  >
-                    <option value="Normal User">Normal User</option>
-                    <option value="Administrator">Administrator</option>
-                  </select>
-                ) : (
-                  user.role
-                )}
-              </td>
-              <td>
-                {editingUser && editingUser._id === user._id ? (
-                  <>
-                    <button
-                      onClick={handleUpdateUser}
-                      className="bg-green-500 text-white p-1 rounded mr-2"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={() => setEditingUser(null)}
-                      className="bg-gray-500 text-white p-1 rounded"
-                    >
-                      Cancel
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={() => setEditingUser(user)}
-                      className="bg-yellow-500 text-white p-1 rounded mr-2"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteUser(user._id)}
-                      className="bg-red-500 text-white p-1 rounded"
-                    >
-                      Delete
-                    </button>
-                  </>
-                )}
-              </td>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Email
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Role
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {users.map((user) => (
+              <tr key={user._id}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {editingUser && editingUser._id === user._id ? (
+                    <input
+                      type="email"
+                      value={editingUser.email}
+                      onChange={(e) =>
+                        setEditingUser({
+                          ...editingUser,
+                          email: e.target.value,
+                        })
+                      }
+                      className="border p-1 rounded"
+                    />
+                  ) : (
+                    user.email
+                  )}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {editingUser && editingUser._id === user._id ? (
+                    <select
+                      value={editingUser.role}
+                      onChange={(e) =>
+                        setEditingUser({ ...editingUser, role: e.target.value })
+                      }
+                      className="border p-1 rounded"
+                    >
+                      <option value="Normal User">Normal User</option>
+                      <option value="Administrator">Administrator</option>
+                    </select>
+                  ) : (
+                    user.role
+                  )}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  {editingUser && editingUser._id === user._id ? (
+                    <>
+                      <button
+                        onClick={handleUpdateUser}
+                        className="text-indigo-600 hover:text-indigo-900 mr-2"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setEditingUser(null)}
+                        className="text-gray-600 hover:text-gray-900"
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setEditingUser(user)}
+                        className="text-indigo-600 hover:text-indigo-900 mr-2"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteUser(user._id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

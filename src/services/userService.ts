@@ -1,35 +1,63 @@
-import axios from "axios";
+import api from "./api";
 import { getToken } from "./authService";
 
-const API_URL = "http://localhost:5001/api/users";
+interface User {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+}
 
-const authHeader = () => ({
-  headers: { Authorization: `Bearer ${getToken()}` },
-});
-
-export const getUsers = async () => {
-  const response = await axios.get(API_URL, authHeader());
-  return response.data;
+export const getUsers = async (): Promise<User[]> => {
+  try {
+    const token = getToken();
+    const response = await api.get("/api/users", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    throw error;
+  }
 };
 
-export const addUser = async (user: {
-  email: string;
-  password: string;
-  role: string;
-}) => {
-  const response = await axios.post(API_URL, user, authHeader());
-  return response.data;
+export const addUser = async (userData: Omit<User, "_id">): Promise<User> => {
+  try {
+    const token = getToken();
+    const response = await api.post("/api/users", userData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error adding user:", error);
+    throw error;
+  }
 };
 
 export const updateUser = async (
   id: string,
-  user: { email: string; role: string }
-) => {
-  const response = await axios.put(`${API_URL}/${id}`, user, authHeader());
-  return response.data;
+  userData: Partial<User>
+): Promise<User> => {
+  try {
+    const token = getToken();
+    const response = await api.put(`/api/users/${id}`, userData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating user:", error);
+    throw error;
+  }
 };
 
-export const deleteUser = async (id: string) => {
-  const response = await axios.delete(`${API_URL}/${id}`, authHeader());
-  return response.data;
+export const deleteUser = async (id: string): Promise<void> => {
+  try {
+    const token = getToken();
+    await api.delete(`/api/users/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    throw error;
+  }
 };

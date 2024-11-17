@@ -1,31 +1,26 @@
 import React, { useState } from "react";
-import { login } from "../services/authService";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { login } from "../services/authService";
 
 interface LoginProps {
-  onLogin: (token: string, role: string) => void;
+  onLogin: (role: string) => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { token, role } = await login(email, password);
-      onLogin(token, role);
-    } catch (err) {
-      toast.error("Invalid email or password", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      const data = await login(email, password);
+      onLogin(data.user.role);
+      toast.success("Logged in successfully");
+      navigate("/dashboard");
+    } catch (error) {
+      toast.error("Invalid credentials");
     }
   };
 
@@ -33,8 +28,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 ">
-            Inventory Management
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Sign in to your account
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -73,8 +68,6 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               />
             </div>
           </div>
-
-          {error && <div className="text-red-500 text-sm">{error}</div>}
 
           <div>
             <button
